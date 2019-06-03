@@ -56,6 +56,10 @@ public class hwmEffectStressTestingEditor : EditorWindow
 
 	protected void OnGUI()
 	{
+		//if (GUILayout.Button("Test"))
+		//{
+		//}
+
 		if (!Application.isPlaying)
 		{
 			EditorGUILayout.HelpBox("Only runtime", MessageType.Warning);

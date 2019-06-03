@@ -9,12 +9,19 @@ public class hwmEffectStressTesting : MonoBehaviour
 	private const float WAIT_SECOND = 0.3f;
 
 	private bool m_IsExecuting;
+	private bool m_IsSampling;
 	private string m_AnalysisResult;
 	private hwmDoubleSampleHelper m_MaxFrameTimeSample;
 	private hwmDoubleSampleHelper m_ClientFrameTimeSample;
 	private hwmDoubleSampleHelper m_RenderFrameTimeSample;
-	private LongSampleHelper m_TriangleCountSample;
-	private LongSampleHelper m_VerticeCountSample;
+	private hwmDoubleSampleHelper m_TriangleCountSample;
+	private hwmDoubleSampleHelper m_VerticeCountSample;
+	private hwmLongSampleHelper m_DynamicBatchedDrawCallCountSample;
+	private hwmLongSampleHelper m_StaticBatchedDrawCallCountSample;
+	private hwmLongSampleHelper m_InstancedBatchedDrawCallCountSample;
+	private hwmLongSampleHelper m_DynamicBatcheCountSample;
+	private hwmLongSampleHelper m_StaticBatcheCountSample;
+	private hwmLongSampleHelper m_InstancedBatcheCountSample;
 
 	public string GetAnalysisResult()
 	{
@@ -33,6 +40,7 @@ public class hwmEffectStressTesting : MonoBehaviour
 		, float toCameraDistance)
 	{
 		m_IsExecuting = true;
+		m_IsSampling = false;
 		Application.targetFrameRate = int.MaxValue;
 		Time.maximumDeltaTime = 0;
 		QualitySettings.vSyncCount = 0;
@@ -42,13 +50,42 @@ public class hwmEffectStressTesting : MonoBehaviour
 		hwmEditorReflectionUtility.GetRenderFrameTime();
 		hwmEditorReflectionUtility.GetTriangleCount();
 		hwmEditorReflectionUtility.GetVerticeCount();
+		hwmEditorReflectionUtility.GetDynamicBatchedDrawCallCount();
+		hwmEditorReflectionUtility.GetStaticBatchedDrawCallCount();
+		hwmEditorReflectionUtility.GetInstancedBatchedDrawCallCount();
+		hwmEditorReflectionUtility.GetDynamicBatcheCount();
+		hwmEditorReflectionUtility.GetStaticBatcheCount();
+		hwmEditorReflectionUtility.GetInstancedBatcheCount();
 		yield return null;
 
 		Vector3 effectPosition = camera.transform.position
 			+ camera.transform.forward * toCameraDistance;
 		GameObject[] instantiates = new GameObject[instantiateCount];
 		StringBuilder stringBuilder = new StringBuilder()
-			.Append("Asset,Average FPS,Max FPS,Average CPU Time, Max CPU Time,Average GPU Time, Max GPU Time,Max Triangle,Max Vertice")
+			.Append("Asset Path").Append(',')
+			.Append("Asset").Append(',')
+			.Append("Average FPS").Append(',')
+			.Append("Max FPS").Append(',')
+			.Append("Average CPU Time").Append(',')
+			.Append("Max CPU Time").Append(',')
+			.Append("Average GPU Time").Append(',')
+			.Append("Max GPU Time").Append(',')
+			.Append("Average Triangle").Append(',')
+			.Append("Max Triangle").Append(',')
+			.Append("Average Vertice").Append(',')
+			.Append("Max Vertice").Append(',')
+			.Append("Average Dynamic DrawCall").Append(',')
+			.Append("Max Dynamic DrawCall").Append(',')
+			.Append("Average Dynamic Batche").Append(',')
+			.Append("Max Dynamic Batche").Append(',')
+			.Append("Average Static DrawCall").Append(',')
+			.Append("Max Static DrawCall").Append(',')
+			.Append("Average Static Batche").Append(',')
+			.Append("Max Static Batche").Append(',')
+			.Append("Average Instanced DrawCall").Append(',')
+			.Append("Max Instanced DrawCall").Append(',')
+			.Append("Average Instanced Batche").Append(',')
+			.Append("Max Instanced Batche").Append(',')
 			.Append('\n');
 		yield return null;
 
@@ -71,16 +108,42 @@ public class hwmEffectStressTesting : MonoBehaviour
 			m_RenderFrameTimeSample.Reset();
 			m_TriangleCountSample.Reset();
 			m_VerticeCountSample.Reset();
+			m_DynamicBatchedDrawCallCountSample.Reset();
+			m_StaticBatchedDrawCallCountSample.Reset();
+			m_InstancedBatchedDrawCallCountSample.Reset();
+			m_DynamicBatcheCountSample.Reset();
+			m_StaticBatcheCountSample.Reset();
+			m_InstancedBatcheCountSample.Reset();
+			m_IsSampling = true;
 			yield return new WaitForSeconds(simulateTime);
-			stringBuilder.Append(AssetDatabase.GetAssetPath(iterPrefab)).Append(',')
+			m_IsSampling = false;
+			string assetPath = AssetDatabase.GetAssetPath(iterPrefab);
+			stringBuilder.Append(assetPath).Append(',')
+				.Append(hwmStringUtility.SubFileNameFromPath(assetPath)).Append(',')
 				.Append(string.Format("{0:F0} FPS", 1.0 / m_MaxFrameTimeSample.GetAverage())).Append(',')
 				.Append(string.Format("{0:F0} FPS", 1.0 / m_MaxFrameTimeSample.GetMaximum())).Append(',')
 				.Append(string.Format("{0:F1} ms", m_ClientFrameTimeSample.GetAverage())).Append(',')
 				.Append(string.Format("{0:F1} ms", m_ClientFrameTimeSample.GetMaximum())).Append(',')
 				.Append(string.Format("{0:F1} ms", m_RenderFrameTimeSample.GetAverage())).Append(',')
 				.Append(string.Format("{0:F1} ms", m_RenderFrameTimeSample.GetMaximum())).Append(',')
-				.Append(string.Format("{0} k", m_TriangleCountSample.GetMaximum() * 0.001)).Append(',')
-				.Append(string.Format("{0} k", m_VerticeCountSample.GetMaximum() * 0.001)).Append('\n');
+				.Append(string.Format("{0:F2} k", m_TriangleCountSample.GetAverage())).Append(',')
+				.Append(string.Format("{0:F2} k", m_TriangleCountSample.GetMaximum())).Append(',')
+				.Append(string.Format("{0:F2} k", m_VerticeCountSample.GetAverage())).Append(',')
+				.Append(string.Format("{0:F2} k", m_VerticeCountSample.GetMaximum())).Append(',')
+				.Append(m_DynamicBatchedDrawCallCountSample.GetAverage()).Append(',')
+				.Append(m_DynamicBatchedDrawCallCountSample.GetMaximum()).Append(',')
+				.Append(m_DynamicBatcheCountSample.GetAverage()).Append(',')
+				.Append(m_DynamicBatcheCountSample.GetMaximum()).Append(',')
+				.Append(m_StaticBatchedDrawCallCountSample.GetAverage()).Append(',')
+				.Append(m_StaticBatchedDrawCallCountSample.GetMaximum()).Append(',')
+				.Append(m_StaticBatcheCountSample.GetAverage()).Append(',')
+				.Append(m_StaticBatcheCountSample.GetMaximum()).Append(',')
+				.Append(m_InstancedBatchedDrawCallCountSample.GetAverage()).Append(',')
+				.Append(m_InstancedBatchedDrawCallCountSample.GetMaximum()).Append(',')
+				.Append(m_InstancedBatcheCountSample.GetMaximum()).Append(',')
+				.Append(m_InstancedBatcheCountSample.GetAverage()).Append(',')
+				.Append('\n');
+
 			yield return null;
 
 			for (int iInstantiate = 0; iInstantiate < instantiateCount; iInstantiate++)
@@ -97,13 +160,19 @@ public class hwmEffectStressTesting : MonoBehaviour
 
 	public void Update()
 	{
-		if (m_IsExecuting)
+		if (m_IsSampling)
 		{
 			m_MaxFrameTimeSample.Sample(hwmEditorReflectionUtility.GetMaxFrameTime());
 			m_ClientFrameTimeSample.Sample(hwmEditorReflectionUtility.GetClientFrameTime() * 1000.0f);
 			m_RenderFrameTimeSample.Sample(hwmEditorReflectionUtility.GetRenderFrameTime() * 1000.0f);
-			m_TriangleCountSample.Sample(hwmEditorReflectionUtility.GetTriangleCount());
-			m_VerticeCountSample.Sample(hwmEditorReflectionUtility.GetVerticeCount());
+			m_TriangleCountSample.Sample(hwmEditorReflectionUtility.GetTriangleCount() * 0.001);
+			m_VerticeCountSample.Sample(hwmEditorReflectionUtility.GetVerticeCount() * 0.001);
+			m_DynamicBatchedDrawCallCountSample.Sample(hwmEditorReflectionUtility.GetDynamicBatchedDrawCallCount());
+			m_StaticBatchedDrawCallCountSample.Sample(hwmEditorReflectionUtility.GetStaticBatchedDrawCallCount());
+			m_InstancedBatchedDrawCallCountSample.Sample(hwmEditorReflectionUtility.GetInstancedBatchedDrawCallCount());
+			m_DynamicBatcheCountSample.Sample(hwmEditorReflectionUtility.GetDynamicBatcheCount());
+			m_StaticBatcheCountSample.Sample(hwmEditorReflectionUtility.GetStaticBatcheCount());
+			m_InstancedBatcheCountSample.Sample(hwmEditorReflectionUtility.GetInstancedBatcheCount());
 		}
 	}
 }

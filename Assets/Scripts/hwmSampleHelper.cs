@@ -47,7 +47,7 @@ public struct hwmDoubleSampleHelper : hwmISampleHelper<double>
 	}
 }
 
-public struct LongSampleHelper : hwmISampleHelper<long>
+public struct hwmLongSampleHelper : hwmISampleHelper<long>
 {
 	private int m_SampleCount;
 	private long m_Total;

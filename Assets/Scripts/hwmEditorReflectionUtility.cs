@@ -28,6 +28,30 @@ public static class hwmEditorReflectionUtility
 	/// 当前渲染的顶点数量
 	/// </summary>
 	private static MethodInfo VERTICE_COUNT_METHODINFO;
+	/// <summary>
+	/// 动态DrawCall数量
+	/// </summary>
+	private static MethodInfo DYNAMIC_BATCHED_DRAWCALL_COUNT_METHODINFO;
+	/// <summary>
+	/// 静态DrawCall数量
+	/// </summary>
+	private static MethodInfo STATIC_BATCHED_DRAWCALL_COUNT_METHODINFO;
+	/// <summary>
+	/// Instanced DrawCall数量
+	/// </summary>
+	private static MethodInfo INSTANCED_BATCHED_DRAWCALL_COUNT_METHODINFO;
+	/// <summary>
+	/// 动态Batched数量
+	/// </summary>
+	private static MethodInfo DYNAMIC_BATCHED_COUNT_METHODINFO;
+	/// <summary>
+	/// 静态Batched数量
+	/// </summary>
+	private static MethodInfo STATIC_BATCHED_COUNT_METHODINFO;
+	/// <summary>
+	/// Instanced Batched数量
+	/// </summary>
+	private static MethodInfo INSTANCED_BATCHED_COUNT_METHODINFO;
 
 	public static EditorWindow GetGameWindow()
 	{
@@ -101,6 +125,78 @@ public static class hwmEditorReflectionUtility
 		}
 
 		return (int)VERTICE_COUNT_METHODINFO.Invoke(null, null);
+	}
+
+	public static int GetDynamicBatchedDrawCallCount()
+	{
+		if (DYNAMIC_BATCHED_DRAWCALL_COUNT_METHODINFO == null)
+		{
+			DYNAMIC_BATCHED_DRAWCALL_COUNT_METHODINFO = typeof(EditorGUILayout).Assembly
+				.GetType("UnityEditor.UnityStats")
+				.GetMethod("get_dynamicBatchedDrawCalls", BindingFlags.Static | BindingFlags.Public);
+		}
+
+		return (int)DYNAMIC_BATCHED_DRAWCALL_COUNT_METHODINFO.Invoke(null, null);
+	}
+
+	public static int GetStaticBatchedDrawCallCount()
+	{
+		if (STATIC_BATCHED_DRAWCALL_COUNT_METHODINFO == null)
+		{
+			STATIC_BATCHED_DRAWCALL_COUNT_METHODINFO = typeof(EditorGUILayout).Assembly
+				.GetType("UnityEditor.UnityStats")
+				.GetMethod("get_staticBatchedDrawCalls", BindingFlags.Static | BindingFlags.Public);
+		}
+
+		return (int)STATIC_BATCHED_DRAWCALL_COUNT_METHODINFO.Invoke(null, null);
+	}
+
+	public static int GetInstancedBatchedDrawCallCount()
+	{
+		if (INSTANCED_BATCHED_DRAWCALL_COUNT_METHODINFO == null)
+		{
+			INSTANCED_BATCHED_DRAWCALL_COUNT_METHODINFO = typeof(EditorGUILayout).Assembly
+				.GetType("UnityEditor.UnityStats")
+				.GetMethod("get_instancedBatchedDrawCalls", BindingFlags.Static | BindingFlags.Public);
+		}
+
+		return (int)INSTANCED_BATCHED_DRAWCALL_COUNT_METHODINFO.Invoke(null, null);
+	}
+
+	public static int GetDynamicBatcheCount()
+	{
+		if (DYNAMIC_BATCHED_COUNT_METHODINFO == null)
+		{
+			DYNAMIC_BATCHED_COUNT_METHODINFO = typeof(EditorGUILayout).Assembly
+				.GetType("UnityEditor.UnityStats")
+				.GetMethod("get_dynamicBatches", BindingFlags.Static | BindingFlags.Public);
+		}
+
+		return (int)DYNAMIC_BATCHED_COUNT_METHODINFO.Invoke(null, null);
+	}
+
+	public static int GetStaticBatcheCount()
+	{
+		if (STATIC_BATCHED_COUNT_METHODINFO == null)
+		{
+			STATIC_BATCHED_COUNT_METHODINFO = typeof(EditorGUILayout).Assembly
+				.GetType("UnityEditor.UnityStats")
+				.GetMethod("get_staticBatches", BindingFlags.Static | BindingFlags.Public);
+		}
+
+		return (int)STATIC_BATCHED_COUNT_METHODINFO.Invoke(null, null);
+	}
+
+	public static int GetInstancedBatcheCount()
+	{
+		if (INSTANCED_BATCHED_COUNT_METHODINFO == null)
+		{
+			INSTANCED_BATCHED_COUNT_METHODINFO = typeof(EditorGUILayout).Assembly
+				.GetType("UnityEditor.UnityStats")
+				.GetMethod("get_instancedBatches", BindingFlags.Static | BindingFlags.Public);
+		}
+
+		return (int)INSTANCED_BATCHED_COUNT_METHODINFO.Invoke(null, null);
 	}
 }
 #endif
